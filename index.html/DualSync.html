@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DualSync (듀얼싱크) - 제3자 갈등 중재 & 맞춤형 연애 케어 앱</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF5A79;
+            --primary-light: #FFF0F3;
+            --primary-dark: #E03E60;
+            --secondary: #4F46E5;
+            --secondary-light: #EEF2FF;
+            --bg-color: #F8FAFC;
+            --card-bg: #FFFFFF;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --border: #E2E8F0;
+            --success: #10B981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', sans-serif; }
+        body { background: linear-gradient(135deg, #FFE4E8 0%, #E0E7FF 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; color: var(--text-main); }
+        .phone-container { width: 100%; max-width: 412px; height: 820px; background-color: var(--card-bg); border-radius: 40px; box-shadow: 0 25px 60px -15px rgba(0,0,0,0.2), 0 0 0 10px #2D3748; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        .notch { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 22px; background-color: #2D3748; border-bottom-left-radius: 14px; border-bottom-right-radius: 14px; z-index: 100; }
+        .app-header { padding: 32px 20px 12px; background-color: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .app-title { font-size: 18px; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 6px; }
+        .badge-live { background-color: var(--primary-light); color: var(--primary); font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; }
+        .screen-content { flex: 1; overflow-y: auto; padding: 16px; background-color: var(--bg-color); }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background-color: var(--card-bg); border-radius: 18px; padding: 16px; margin-bottom: 14px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .card-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 5px; }
+        .form-control, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 12px; outline: none; background-color: #FAFAFA; }
+        .form-control:focus, select:focus, textarea:focus { border-color: var(--primary); background-color: #FFF; }
+        textarea { resize: vertical; min-height: 65px; }
+        .btn { display: block; width: 100%; padding: 11px; border: none; border-radius: 12px; background-color: var(--primary); color: #FFF; font-size: 13px; font-weight: 700; cursor: pointer; text-align: center; }
+        .btn-secondary { background-color: var(--secondary); }
+        .nav-bar { height: 64px; background-color: var(--card-bg); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; font-weight: 600; width: 25%; }
+        .nav-item.active { color: var(--primary); }
+        .stat-row { margin-bottom: 10px; }
+        .stat-labels { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; margin-bottom: 4px; }
+        .stat-track { height: 8px; background-color: #E2E8F0; border-radius: 4px; overflow: hidden; }
+        .stat-fill { height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #FF8A9E 100%); border-radius: 4px; transition: width 0.6s ease; }
+        .tag-pill { display: inline-block; padding: 3px 8px; border-radius: 16px; font-size: 11px; font-weight: 600; margin-right: 4px; margin-bottom: 4px; }
+        .tag-pink { background-color: var(--primary-light); color: var(--primary); }
+        .tag-blue { background-color: var(--secondary-light); color: var(--secondary); }
+        .mediation-box { background: #F8FAFC; border-left: 4px solid var(--primary); padding: 12px; border-radius: 8px; margin-top: 12px; }
+        .mediation-box h4 { font-size: 12px; color: var(--primary); margin-bottom: 6px; }
+        .mediation-box p { font-size: 12px; line-height: 1.5; color: #334155; margin-bottom: 6px; }
+        .chat-bubble { max-width: 80%; padding: 8px 12px; border-radius: 14px; font-size: 12px; line-height: 1.4; margin-bottom: 8px; }
+        .chat-left { background-color: #F1F5F9; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .chat-right { background-color: var(--primary); color: #FFF; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 2px; }
+        .dday-banner { background: linear-gradient(135deg, #FF6584 0%, #FF8E53 100%); color: #FFF; border-radius: 16px; padding: 18px; margin-bottom: 14px; text-align: center; }
+        .dday-number { font-size: 28px; font-weight: 800; margin: 4px 0; }
+    </style>
+</head>
+<body>
+
+<div class="phone-container">
+    <div class="notch"></div>
+    <header class="app-header">
+        <div class="app-title"><span>✨ DualSync</span><span class="badge-live">커플 케어</span></div>
+        <div style="font-size: 11px; color: var(--text-muted); font-weight: 500;">❤️ 한규 & 민지</div>
+    </header>
+
+    <main class="screen-content">
+        <!-- 1. HOME TAB -->
+        <section id="tab-home" class="tab-pane active">
+            <div class="dday-banner">
+                <div style="font-size: 11px; opacity: 0.9;">우리 사랑한 지</div>
+                <div class="dday-number">D + 342일</div>
+                <div style="font-size: 11px; opacity: 0.9;">다음 기념일: 1주년까지 23일 남음 🎁</div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📝 연인 성향 & 취향 프로필</span>
+                    <span style="font-size: 11px; color: var(--primary); font-weight: 600;">비트윈 연동</span>
+                </div>
+                <div style="font-size: 12px; line-height: 1.6;">
+                    <div><strong>성격:</strong> 차분함, 계획 선호</div>
+                    <div style="margin-top: 4px;"><strong>좋아하는 것(Like):</strong> <span class="tag-pill tag-pink">파스타 맛집</span><span class="tag-pill tag-pink">산책 데이트</span></div>
+                    <div style="margin-top: 2px;"><strong>싫어하는 것(Dislike):</strong> <span class="tag-pill tag-blue">연락 두절</span><span class="tag-pill tag-blue">약속 지각</span></div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">📊 최근 관계 건강도</span>
+                    <span style="font-size: 11px; color: var(--success); font-weight: 700;">안정 92점</span>
+                </div>
+                <div class="stat-row">
+                    <div class="stat-labels"><span>데이트 평균 만족도</span><span style="color: var(--primary);">4.8 / 5.0 점</span></div>
+                    <div class="stat-track"><div class="stat-fill" style="width: 96%;"></div></div>
+                </div>
+                <button class="btn btn-secondary" onclick="switchTab('tab-mediation')" style="margin-top: 6px; padding: 8px; font-size: 11px;">🚨 다투셨나요? 제3자 AI 중재 신청</button>
+            </div>
+        </section>
+
+        <!-- 2. MEDIATION TAB -->
+        <section id="tab-mediation" class="tab-pane">
+            <div class="card">
+                <div class="card-header"><span class="card-title">⚖️ 제3자 관점 갈등 중재소</span></div>
+                <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 12px;">주관적 감정을 배제하고, 제3자 상담가 시각에서 해결책을 제시합니다.</p>
+                <form id="mediationForm" onsubmit="handleMediation(event)">
+                    <div class="form-group">
+                        <label>1. 갈등 원인 항목 (통계 수집용)</label>
+                        <select id="conflictCategory" class="form-control" required>
+                            <option value="연락">전화·문자·연락 빈도 (30%)</option>
+                            <option value="돈">데이트 비용 및 지출 방식 (15.6%)</option>
+                            <option value="약속">약속 시간 및 일정 준수</option>
+                            <option value="생활습관">생활 습관 및 성격 차이 (32%)</option>
+                            <option value="애정표현">스킨십 및 애정표현 방식 (28%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>2. 다툼 상황 요약</label>
+                        <input type="text" id="conflictSummary" class="form-control" value="오늘 연락 문제로 서운해서 다퉜어요." required>
+                    </div>
+                    <div class="form-group">
+                        <label>3. 본인(내) 입장</label>
+                        <textarea id="mySide" class="form-control" required>바빠서 연락 못 할 수도 있는데 상대방이 계속 재촉해서 답답해요.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>4. 상대방 예상 입장</label>
+                        <textarea id="partnerSide" class="form-control" required>카톡 한 줄 남기는 데 10초도 안 걸리는데 무시당하고 소홀해졌다고 느꼈을 것 같아요.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>5. 희망 해결 방안</label>
+                        <select id="desiredResolution" class="form-control">
+                            <option value="생각 정리 후 대면 대화">생각 정리 후 직접 만나 대화</option>
+                            <option value="먼저 진심 어린 사과">내가 먼저 사과하고 감정 보듬기</option>
+                            <option value="규칙 제정">연락 기준 및 타협 규칙 정하기</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn" id="submitBtn">✨ 제3자 시점 객관적 중재안 도출하기</button>
+                </form>
+                <div id="mediationResult" style="display: none;"></div>
+            </div>
+        </section>
+
+        <!-- 3. STATS TAB -->
+        <section id="tab-stats" class="tab-pane">
+            <div class="card">
+                <div class="card-header"><span class="card-title">📈 2030 커플 갈등 원인 TOP 5</span><span style="font-size: 11px; color: var(--text-muted);">실시간 누적</span></div>
+                <div class="stat-row"><div class="stat-labels"><span>1위. 생활 습관 및 말투</span><span>32.0%</span></div><div class="stat-track"><div class="stat-fill" style="width: 32%;"></div></div></div>
+                <div class="stat-row"><div class="stat-labels"><span>2위. 전화·문자·연락 빈도</span><span id="val-contact">30.0%</span></div><div class="stat-track"><div id="bar-contact" class="stat-fill" style="width: 30%;"></div></div></div>
+                <div class="stat-row"><div class="stat-labels"><span>3위. 스킨십 및 애정표현 방식</span><span>28.0%</span></div><div class="stat-track"><div class="stat-fill" style="width: 28%; background: #6366F1;"></div></div></div>
+                <div class="stat-row"><div class="stat-labels"><span>4위. 데이트 비용 및 경제관념</span><span>17.8%</span></div><div class="stat-track"><div class="stat-fill" style="width: 17.8%; background: #F59E0B;"></div></div></div>
+                <div class="stat-row"><div class="stat-labels"><span>5위. 약속 지각 및 일정 조율</span><span>14.2%</span></div><div class="stat-track"><div class="stat-fill" style="width: 14.2%; background: #64748B;"></div></div></div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title">🤝 효과적인 화해 방법 TOP 3</span></div>
+                <div style="font-size: 12px; line-height: 1.7;">
+                    <div>🥇 1위. 감정 가라앉히고 대면 대화 (42.5%)</div>
+                    <div>🥈 2위. 제3자 시각 NVC 대화법 적용 (29.1%)</div>
+                    <div>🥉 3위. 사소한 규칙 합의 및 재발 방지 (18.4%)</div>
+                </div>
+            </div>
+            <div class="card" style="background-color: #F8FAFC;">
+                <span class="card-title" style="font-size: 12px; margin-bottom: 6px;">📚 공인 연구 데이터 참조</span>
+                <ul style="font-size: 11px; color: var(--text-muted); line-height: 1.5; padding-left: 14px;">
+                    <li>월평균 데이트 비용: <strong>약 35.4만 원</strong> (1회 11.5만 원)</li>
+                    <li>데이트 비용 갈등 경험률: <strong>15.6% ~ 17.8%</strong></li>
+                    <li>주요 데이트 활동: 맛집(38.3%), 영화관(27.5%), 쇼핑몰(12.3%)</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 4. COUPLE ROOM & DATE TAB -->
+        <section id="tab-couple" class="tab-pane">
+            <div class="card">
+                <div class="card-header"><span class="card-title">💬 둘만의 1:1 대화방</span><span style="font-size: 11px; color: var(--success);">연결됨</span></div>
+                <div id="chatHistory" style="display: flex; flex-direction: column; max-height: 140px; overflow-y: auto; margin-bottom: 8px;">
+                    <div class="chat-bubble chat-left">오늘 저녁 파스타 먹으러 갈까? 예약해 둘게! 😊</div>
+                    <div class="chat-bubble chat-right">좋아! 지난번 갔던 만족도 5점 맛집이지? 퇴근하고 봐~ ❤️</div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                    <input type="text" id="chatInput" class="form-control" placeholder="메시지 입력..." style="font-size: 11px; padding: 7px 10px;">
+                    <button class="btn" style="width: 60px; padding: 7px; font-size: 11px;" onclick="sendChatMessage()">전송</button>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header"><span class="card-title">⭐ 데이트 기록 & 정량 평가</span></div>
+                <form id="dateForm" onsubmit="handleDateLog(event)">
+                    <div class="form-group">
+                        <label>방문 장소</label>
+                        <select id="datePlace" class="form-control">
+                            <option value="맛집">맛집 식당 (38.3%)</option>
+                            <option value="영화관">영화관 (27.5%)</option>
+                            <option value="쇼핑몰">쇼핑몰 (12.3%)</option>
+                            <option value="카페">감성 카페 (8.9%)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>지출 데이트 비용 (원)</label>
+                        <input type="number" id="dateCost" class="form-control" value="65000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>데이트 만족도 (1~10점): <span id="scoreVal" style="color: var(--primary); font-weight: 700;">9점</span></label>
+                        <input type="range" id="dateScore" min="1" max="10" value="9" style="width: 100%; accent-color: var(--primary);" oninput="document.getElementById('scoreVal').innerText = this.value + '점'">
+                    </div>
+                    <button type="submit" class="btn btn-secondary" style="font-size: 12px; padding: 9px;">📝 데이트 평가 저장 및 통계 반영</button>
+                </form>
+                <div id="dateHistory" style="margin-top: 10px; font-size: 11px;">
+                    <div style="background: #F8FAFC; padding: 6px 10px; border-radius: 6px; display: flex; justify-content: space-between;">
+                        <span>🍽️ 성수동 파스타 (맛집)</span><span style="font-weight: 700; color: var(--primary);">⭐ 10/10점 (68,000원)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <nav class="nav-bar">
+        <button class="nav-item active" onclick="switchTab('tab-home')"><span>🏠</span><span>홈</span></button>
+        <button class="nav-item" onclick="switchTab('tab-mediation')"><span>⚖️</span><span>중재상담</span></button>
+        <button class="nav-item" onclick="switchTab('tab-stats')"><span>📊</span><span>연애통계</span></button>
+        <button class="nav-item" onclick="switchTab('tab-couple')"><span>💑</span><span>커플룸</span></button>
+    </nav>
+</div>
+
+<script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        const navIndex = tabId === 'tab-home' ? 0 : tabId === 'tab-mediation' ? 1 : tabId === 'tab-stats' ? 2 : 3;
+        document.querySelectorAll('.nav-item')[navIndex].classList.add('active');
+    }
+    let contactCount = 30;
+    function handleMediation(e) {
+        e.preventDefault();
+        const category = document.getElementById('conflictCategory').value;
+        const resolution = document.getElementById('desiredResolution').value;
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "⏳ 제3자 AI 상담가가 객관적으로 분석 중...";
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.innerText = "✨ 제3자 시점 객관적 중재안 도출하기";
+            btn.disabled = false;
+            const res = document.getElementById('mediationResult');
+            res.style.display = 'block';
+            res.innerHTML = `
+                <div class="mediation-box">
+                    <h4>🔍 제3자 객관적 상황 진단</h4>
+                    <p><strong>갈등 원인:</strong> [${category}] 문제로 인한 감정 충돌</p>
+                    <p><strong>상황 분석:</strong> 본인은 상황에 대한 '이해와 여유'를 바랐고, 상대방은 '관심과 존중의 신호'를 기대했습니다. 서로 악의가 있었던 것이 아니라 <strong>소통 방식의 속도 차이</strong>에서 발생한 문제입니다.</p>
+                    <h4 style="margin-top: 8px;">💬 NVC(비폭력 대화) 추천 화해 멘트</h4>
+                    <div style="background: #FFF; padding: 8px; border-radius: 6px; border: 1px dashed var(--primary); font-size: 11px; color: var(--primary-dark); font-weight: 600; margin-bottom: 6px;">
+                        "아까 바빠서 답장이 늦어졌는데, 네가 답답하고 서운했을 마음 충분히 이해해. 나한테 넌 정말 소중한 사람이야. 앞으로는 미리 바쁜 상황을 짧게라도 먼저 남겨줄게."
+                    </div>
+                    <h4>📋 화해 실행 가이드</h4>
+                    <p>1단계: 30분 감정 진정 시간 갖기<br>2단계: 위 추천 멘트로 대화 물꼬 트기<br>3단계: <strong>[${resolution}]</strong> 방식으로 서로의 경계 규칙 합의하기</p>
+                    <div style="font-size: 10px; color: var(--success); font-weight: 700; text-align: right;">✅ 입력 데이터가 [연애 통계 대시보드]에 익명으로 집계되었습니다.</div>
+                </div>`;
+            if (category === '연락') {
+                contactCount += 1;
+                document.getElementById('val-contact').innerText = contactCount + ".2%";
+                document.getElementById('bar-contact').style.width = Math.min(contactCount, 40) + "%";
+            }
+            res.scrollIntoView({ behavior: 'smooth' });
+        }, 800);
+    }
+    function sendChatMessage() {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text) return;
+        const chat = document.getElementById('chatHistory');
+        const msg = document.createElement('div');
+        msg.className = 'chat-bubble chat-right';
+        msg.innerText = text;
+        chat.appendChild(msg);
+        input.value = '';
+        chat.scrollTop = chat.scrollHeight;
+        setTimeout(() => {
+            const pMsg = document.createElement('div');
+            pMsg.className = 'chat-bubble chat-left';
+            pMsg.innerText = "응! 확인했어, 고마워 ❤️";
+            chat.appendChild(pMsg);
+            chat.scrollTop = chat.scrollHeight;
+        }, 700);
+    }
+    function handleDateLog(e) {
+        e.preventDefault();
+        const place = document.getElementById('datePlace').value;
+        const cost = parseInt(document.getElementById('dateCost').value).toLocaleString();
+        const score = document.getElementById('dateScore').value;
+        const hist = document.getElementById('dateHistory');
+        const item = document.createElement('div');
+        item.style = "background: #F8FAFC; padding: 6px 10px; border-radius: 6px; margin-top: 4px; display: flex; justify-content: space-between;";
+        item.innerHTML = `<span>📍 ${place} 데이트</span><span style="font-weight: 700; color: var(--primary);">⭐ ${score}/10점 (${cost}원)</span>`;
+        hist.appendChild(item);
+        alert("데이트 기록과 만족도 평가가 저장되었습니다!");
+    }
+</script>
+</body>
+</html>
